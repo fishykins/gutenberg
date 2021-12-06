@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/fishykins/gutenberg/pkg/formatting"
 	"github.com/fishykins/gutenberg/pkg/lang"
 )
 
@@ -14,7 +13,7 @@ func BuildWord(r *Region, id int) (*lang.Word, error) {
 		return nil, fmt.Errorf("region has too few lines (%d)", len(r.Lines))
 	}
 
-	fmt.Printf("Building region %d (lines %d -> %d)...\n", id, r.Start, r.End)
+	//fmt.Printf("Building region %d (lines %d -> %d)...\n", id, r.Start, r.End)
 
 	title := r.Lines[0]
 	subTitle := r.Lines[1]
@@ -35,15 +34,20 @@ func BuildWord(r *Region, id int) (*lang.Word, error) {
 
 	word := lang.Word{
 		ID:          int32(id),
-		Inner:       title,
+		Inner:       strings.ToLower(title),
 		Type:        wordType,
 		Definitions: definitions,
 	}
 
-	fmt.Printf("R%d: \"%s\" has %d definitons\n", id, word.Header(formatting.FormatType_Plain), len(definitions))
-	for _, d := range word.Definitions {
-		fmt.Println(d.Text + "\n")
-	}
+	// fmt.Printf("R%d: \"%s\" has %d definitons\n", id, word.Header(formatting.FormatType_Plain), len(definitions))
+	// for i, d := range word.Definitions {
+	// 	theme := GetThemeFromID(d.Theme)
+	// 	if theme != nil {
+	// 		fmt.Printf("\t%d: <%s> %s\n", theme.ID, theme.Name, d.Text)
+	// 	} else {
+	// 		fmt.Printf("\t%d: %s\n", i, d.Text)
+	// 	}
+	// }
 
 	return &word, nil
 }

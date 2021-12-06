@@ -14,8 +14,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const lineStart = 481 //28
-const lineEnd = 502   //973900
+const lineStart = 28
+const lineEnd = 973900
 
 // Handles the entire parsing process
 func ParseDictionary(databaseName string) ([]lang.Word, error) {
@@ -63,6 +63,7 @@ func ParseDictionary(databaseName string) ([]lang.Word, error) {
 
 	// From here on out, we are just doing exporting to database stuff.
 	words := bson.A{}
+	themes := bson.A{}
 
 	for i, region := range partitioner.Regions {
 		word, err := BuildWord(&region, i)
@@ -72,6 +73,10 @@ func ParseDictionary(databaseName string) ([]lang.Word, error) {
 			rawWords = append(rawWords, *word)
 			words = append(words, word.IntoBson())
 		}
+	}
+
+	for _, theme := range Themes {
+		themes = append(themes, theme.IntoBson())
 	}
 
 	// Create db connection and handle
@@ -90,12 +95,20 @@ func ParseDictionary(databaseName string) ([]lang.Word, error) {
 
 	db := client.Database(databaseName)
 	wordCollection := db.Collection("words")
+	themeCollection := db.Collection("themes")
+	//desfinitionCollection := db.Collection("definitions")
 
 	// Insert words into database
 	res, err := wordCollection.InsertMany(ctx, words)
-
 	if err != nil {
 		msg := fmt.Sprintf("Error inserting words into database: %s", err.Error())
+		log.Fatal(msg)
+	}
+
+	// Insert themes
+	_, err = themeCollection.InsertMany(ctx, themes)
+	if err != nil {
+		msg := fmt.Sprintf("Error inserting themes into database: %s", err.Error())
 		log.Fatal(msg)
 	}
 

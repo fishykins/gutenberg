@@ -1,5 +1,7 @@
 package lang
 
+import "go.mongodb.org/mongo-driver/bson"
+
 type Theme struct {
 	ID   int32  `json:"ID" bson:"_id,omitempty"`
 	Name string `json:"Name" bson:"name,omitempty"`
@@ -19,5 +21,12 @@ func (l *ThemeLink) Validate() {
 	if l.Strength < -1 {
 		l.Strength = -1
 		return
+	}
+}
+
+func (t *Theme) IntoBson() bson.M {
+	return bson.M{
+		"_id":  t.ID,
+		"name": t.Name,
 	}
 }
